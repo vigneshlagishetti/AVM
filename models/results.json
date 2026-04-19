@@ -1,0 +1,182 @@
+{
+  "Decision Tree": {
+    "accuracy": 99.56,
+    "precision": 99.56,
+    "recall": 99.56,
+    "f1_score": 99.56,
+    "auc": 0.997,
+    "train_time": 0.065,
+    "infer_time": 0.00201,
+    "model_size_kb": 24.9,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.9953,
+        "recall": 0.9953,
+        "f1-score": 0.9953
+      },
+      "Anomaly": {
+        "precision": 0.9959,
+        "recall": 0.9959,
+        "f1-score": 0.9959
+      }
+    }
+  },
+  "XGBoost": {
+    "accuracy": 99.62,
+    "precision": 99.62,
+    "recall": 99.62,
+    "f1_score": 99.62,
+    "auc": 0.9998,
+    "train_time": 0.905,
+    "infer_time": 0.01276,
+    "model_size_kb": 496.2,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.9953,
+        "recall": 0.9966,
+        "f1-score": 0.996
+      },
+      "Anomaly": {
+        "precision": 0.997,
+        "recall": 0.9959,
+        "f1-score": 0.9965
+      }
+    }
+  },
+  "Random Forest": {
+    "accuracy": 99.58,
+    "precision": 99.58,
+    "recall": 99.58,
+    "f1_score": 99.58,
+    "auc": 0.9998,
+    "train_time": 1.39,
+    "infer_time": 0.20414,
+    "model_size_kb": 4286.4,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.9966,
+        "recall": 0.9945,
+        "f1-score": 0.9955
+      },
+      "Anomaly": {
+        "precision": 0.9952,
+        "recall": 0.997,
+        "f1-score": 0.9961
+      }
+    }
+  },
+  "SVM": {
+    "accuracy": 88.67,
+    "precision": 88.84,
+    "recall": 88.67,
+    "f1_score": 88.62,
+    "auc": 0.9554,
+    "train_time": 134.34,
+    "infer_time": 7.81006,
+    "model_size_kb": 449.5,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.9123,
+        "recall": 0.8374,
+        "f1-score": 0.8733
+      },
+      "Anomaly": {
+        "precision": 0.8675,
+        "recall": 0.9297,
+        "f1-score": 0.8975
+      }
+    }
+  },
+  "Logistic Regression": {
+    "accuracy": 85.63,
+    "precision": 85.63,
+    "recall": 85.63,
+    "f1_score": 85.63,
+    "auc": 0.9205,
+    "train_time": 0.101,
+    "infer_time": 0.00096,
+    "model_size_kb": 0.7,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.8471,
+        "recall": 0.8442,
+        "f1-score": 0.8456
+      },
+      "Anomaly": {
+        "precision": 0.8643,
+        "recall": 0.8669,
+        "f1-score": 0.8656
+      }
+    }
+  },
+  "MLP Classifier": {
+    "accuracy": 95.02,
+    "precision": 95.15,
+    "recall": 95.02,
+    "f1_score": 95.02,
+    "auc": 0.9897,
+    "train_time": 16.675,
+    "infer_time": 0.02211,
+    "model_size_kb": 278.0,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.924,
+        "recall": 0.9732,
+        "f1-score": 0.948
+      },
+      "Anomaly": {
+        "precision": 0.9754,
+        "recall": 0.9301,
+        "f1-score": 0.9522
+      }
+    }
+  },
+  "Boosted Regression Tree": {
+    "accuracy": 99.7,
+    "precision": 99.7,
+    "recall": 99.7,
+    "f1_score": 99.7,
+    "auc": 0.9998,
+    "train_time": 8.822,
+    "infer_time": 0.04676,
+    "model_size_kb": 1130.8,
+    "classification_report": {
+      "Normal": {
+        "precision": 0.9966,
+        "recall": 0.997,
+        "f1-score": 0.9968
+      },
+      "Anomaly": {
+        "precision": 0.9974,
+        "recall": 0.997,
+        "f1-score": 0.9972
+      }
+    }
+  },
+  "Adaptive Voting Ensemble": {
+    "accuracy": 99.62,
+    "precision": 99.62,
+    "recall": 99.62,
+    "f1_score": 99.62
+  },
+  "_meta": {
+    "dataset_stats": {
+      "total_samples": 25192,
+      "total_features": 39,
+      "normal_count": 13449,
+      "anomaly_count": 11743,
+      "numeric_features": 36,
+      "categorical_features": 4
+    },
+    "feature_importance": {
+      "duration": 0.0168,
+      "service": 0.1086,
+      "src_bytes": 0.6955,
+      "wrong_fragment": 0.015,
+      "su_attempted": 0.0001,
+      "num_file_creations": 0.0053,
+      "serror_rate": 0.0575,
+      "dst_host_same_srv_rate": 0.1013
+    }
+  }
+}

@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+{% block title %}Home — IDS MANET{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Hero Section -->
+    <div class="hero-section glass-card animate-fade-in mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge">
+                    <i class="bi bi-butterfly"></i> Adaptive Voting Mechanism
+                </div>
+                <h1 class="hero-title">
+                    Intrusion Detection System
+                    <span class="gradient-text">for MANET Security</span>
+                </h1>
+                <p class="hero-description">
+                    Powered by Artificial Butterfly Algorithm-based feature selection 
+                    and ensemble machine learning classifiers with adaptive voting mechanism 
+                    for robust network intrusion detection.
+                </p>
+                <div class="hero-actions">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary btn-glow btn-lg">
+                        <i class="bi bi-cpu"></i> Start Detection
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg ms-3">
+                        <i class="bi bi-bar-chart-line"></i> View Analytics
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 text-center mt-4 mt-lg-0">
+                <div class="hero-graphic">
+                    <div class="shield-icon">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+                    <div class="orbit orbit-1"></div>
+                    <div class="orbit orbit-2"></div>
+                    <div class="orbit orbit-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    {% if results %}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.1s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2)">
+                    <i class="bi bi-diagram-3"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">7</span>
+                    <span class="stat-label">ML Models</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.2s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c)">
+                    <i class="bi bi-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    {% set best_acc = namespace(val=0, name='') %}
+                    {% for name, res in results.items() %}
+                        {% if not name.startswith('_') and res.accuracy is defined and res.accuracy > best_acc.val %}
+                            {% set best_acc.val = res.accuracy %}
+                            {% set best_acc.name = name %}
+                        {% endif %}
+                    {% endfor %}
+                    <span class="stat-value">{{ best_acc.val }}%</span>
+                    <span class="stat-label">Best Accuracy</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.3s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe)">
+                    <i class="bi bi-funnel"></i>
+                </div>
+                <div class="stat-info">
+                    {% if feature_info %}
+                    <span class="stat-value">{{ feature_info.selected_indices|length }}</span>
+                    {% else %}
+                    <span class="stat-value">—</span>
+                    {% endif %}
+                    <span class="stat-label">Selected Features</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.4s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7)">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="stat-info">
+                    {% if results.get('Adaptive Voting Ensemble') %}
+                    <span class="stat-value">{{ results['Adaptive Voting Ensemble'].accuracy }}%</span>
+                    {% else %}
+                    <span class="stat-value">—</span>
+                    {% endif %}
+                    <span class="stat-label">Ensemble Score</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Performance Table -->
+    <div class="glass-card animate-slide-up mb-4" style="animation-delay: 0.5s">
+        <div class="card-header-custom">
+            <h3><i class="bi bi-table"></i> Model Performance Comparison</h3>
+        </div>
+        <div class="table-responsive p-3">
+            <table class="table table-dark table-hover align-middle" id="performanceTable">
+                <thead>
+                    <tr>
+                        <th><i class="bi bi-robot"></i> Model</th>
+                        <th><i class="bi bi-bullseye"></i> Accuracy</th>
+                        <th><i class="bi bi-crosshair"></i> Precision</th>
+                        <th><i class="bi bi-arrow-return-right"></i> Recall</th>
+                        <th><i class="bi bi-speedometer2"></i> F1 Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, res in results.items() %}
+                    {% if not name.startswith('_') %}
+                    <tr class="{% if name == 'Adaptive Voting Ensemble' %}table-highlight{% endif %}">
+                        <td>
+                            {% if name == 'Adaptive Voting Ensemble' %}
+                            <i class="bi bi-stars text-warning"></i>
+                            {% endif %}
+                            <strong>{{ name }}</strong>
+                        </td>
+                        <td>
+                            <div class="metric-bar">
+                                <div class="metric-fill" style="width: {{ res.accuracy }}%; background: {{ '#43e97b' if res.accuracy > 95 else '#4facfe' if res.accuracy > 90 else '#f5576c' }}"></div>
+                                <span>{{ res.accuracy }}%</span>
+                            </div>
+                        </td>
+                        <td>{{ res.precision }}%</td>
+                        <td>{{ res.recall }}%</td>
+                        <td>{{ res.f1_score }}%</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="glass-card animate-fade-in text-center p-5">
+        <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+        <h3 class="mt-3">Models Not Trained Yet</h3>
+        <p class="text-muted">Run <code>python train_model.py</code> to train the models first.</p>
+    </div>
+    {% endif %}
+
+    <!-- Methodology Cards -->
+    <h3 class="section-title mb-3">
+        <i class="bi bi-gear-wide-connected"></i> Methodology Pipeline
+    </h3>
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="method-card glass-card animate-slide-up" style="animation-delay: 0.6s">
+                <div class="method-icon"><i class="bi bi-database"></i></div>
+                <h5>Data Preprocessing</h5>
+                <p>NSL-KDD dataset with label encoding, Z-score normalization, and SMOTE oversampling for balanced training.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="method-card glass-card animate-slide-up" style="animation-delay: 0.7s">
+                <div class="method-icon"><i class="bi bi-butterfly"></i></div>
+                <h5>ABO Feature Selection</h5>
+                <p>Artificial Butterfly Optimizer selects optimal features through sunspot flying, canopy flight, and free flight modes.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="method-card glass-card animate-slide-up" style="animation-delay: 0.8s">
+                <div class="method-icon"><i class="bi bi-people"></i></div>
+                <h5>Adaptive Voting</h5>
+                <p>Dynamic weighted ensemble of 7 classifiers adaptively combines predictions for maximum detection accuracy.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

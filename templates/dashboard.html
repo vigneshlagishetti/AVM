@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - IDS MANET{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title mb-0">
+            <i class="bi bi-bar-chart-line-fill"></i> Analytics Dashboard
+        </h2>
+        {% if results %}
+        <a href="{{ url_for('download_report') }}" class="btn btn-primary btn-glow">
+            <i class="bi bi-download"></i> Download Report
+        </a>
+        {% endif %}
+    </div>
+
+    {% if results %}
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.1s">
+                <h5 class="mb-3"><i class="bi bi-bar-chart"></i> Model Accuracy Comparison</h5>
+                <canvas id="accuracyChart" height="300"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.2s">
+                <h5 class="mb-3"><i class="bi bi-pie-chart"></i> Metrics Radar</h5>
+                <canvas id="radarChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.3s">
+                <h5 class="mb-3"><i class="bi bi-graph-up"></i> All Metrics Comparison</h5>
+                <canvas id="metricsChart" height="280"></canvas>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.4s">
+                <h5 class="mb-3"><i class="bi bi-funnel-fill"></i> Selected Features</h5>
+                {% if feature_info %}
+                <div class="feature-list">
+                    {% for name in feature_info.selected_names %}
+                    <div class="feature-chip" style="animation-delay: {{ 0.5 + loop.index0 * 0.05 }}s">
+                        <span class="feature-index">{{ loop.index }}</span>
+                        <span class="feature-name">{{ name }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-3 text-center">
+                    <span class="badge bg-primary fs-6">
+                        {{ feature_info.selected_names|length }} / {{ feature_info.all_features|length }} features
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: ROC Curves & Feature Importance -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.5s">
+                <h5 class="mb-3"><i class="bi bi-graph-up-arrow"></i> ROC Curves (AUC)</h5>
+                <img src="{{ url_for('static', filename='images/roc_curves.png') }}"
+                     class="img-fluid rounded" alt="ROC Curves"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.6s">
+                <h5 class="mb-3"><i class="bi bi-star-fill"></i> Feature Importance</h5>
+                <img src="{{ url_for('static', filename='images/feature_importance.png') }}"
+                     class="img-fluid rounded" alt="Feature Importance"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Training Time & AUC Chart -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.65s">
+                <h5 class="mb-3"><i class="bi bi-stopwatch"></i> Training Time Comparison</h5>
+                <img src="{{ url_for('static', filename='images/training_time.png') }}"
+                     class="img-fluid rounded" alt="Training Time"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.7s">
+                <h5 class="mb-3"><i class="bi bi-butterfly"></i> ABO Convergence Curve</h5>
+                <img src="{{ url_for('static', filename='images/abo_convergence.png') }}"
+                     class="img-fluid rounded" alt="ABO Convergence"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Classification Reports -->
+    <div class="glass-card animate-slide-up p-4 mb-4" style="animation-delay: 0.75s">
+        <h5 class="mb-3"><i class="bi bi-clipboard-data"></i> Per-Class Classification Reports</h5>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Model</th>
+                        <th colspan="3" class="text-center" style="border-left:2px solid rgba(67,233,123,0.5)">Normal</th>
+                        <th colspan="3" class="text-center" style="border-left:2px solid rgba(245,87,108,0.5)">Anomaly</th>
+                        <th>AUC</th>
+                        <th>Size (KB)</th>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <th style="border-left:2px solid rgba(67,233,123,0.3)"><small>Prec</small></th>
+                        <th><small>Recall</small></th>
+                        <th><small>F1</small></th>
+                        <th style="border-left:2px solid rgba(245,87,108,0.3)"><small>Prec</small></th>
+                        <th><small>Recall</small></th>
+                        <th><small>F1</small></th>
+                        <th></th><th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for name, res in results.items() %}
+                    {% if not name.startswith('_') and res.classification_report is defined %}
+                    <tr class="{% if name == 'Adaptive Voting Ensemble' %}table-highlight{% endif %}">
+                        <td><strong>{{ name }}</strong></td>
+                        {% set nr = res.classification_report.Normal %}
+                        <td style="border-left:2px solid rgba(67,233,123,0.2)">{{ (nr.precision * 100)|round(1) }}%</td>
+                        <td>{{ (nr.recall * 100)|round(1) }}%</td>
+                        <td>{{ (nr['f1-score'] * 100)|round(1) }}%</td>
+                        {% set ar = res.classification_report.Anomaly %}
+                        <td style="border-left:2px solid rgba(245,87,108,0.2)">{{ (ar.precision * 100)|round(1) }}%</td>
+                        <td>{{ (ar.recall * 100)|round(1) }}%</td>
+                        <td>{{ (ar['f1-score'] * 100)|round(1) }}%</td>
+                        <td>{{ res.auc if res.auc is defined else '-' }}</td>
+                        <td>{{ res.model_size_kb if res.model_size_kb is defined else '-' }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Confusion Matrices -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.8s">
+                <h5 class="mb-3"><i class="bi bi-grid-3x3"></i> Confusion Matrix (Ensemble)</h5>
+                <img src="{{ url_for('static', filename='images/confusion_matrix.png') }}"
+                     class="img-fluid rounded" alt="Confusion Matrix"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.85s">
+                <h5 class="mb-3"><i class="bi bi-grid-3x3-gap"></i> All Model Confusion Matrices</h5>
+                <img src="{{ url_for('static', filename='images/all_confusion_matrices.png') }}"
+                     class="img-fluid rounded" alt="All Confusion Matrices"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="glass-card animate-fade-in text-center p-5">
+        <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+        <h3 class="mt-3">No Data Available</h3>
+        <p class="text-muted">Run <code>python train_model.py</code> to train the models and generate analytics.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+{% if results %}
+<script>
+    const results = {{ results | tojson }};
+    const modelNames = Object.keys(results).filter(n => !n.startsWith('_'));
+    
+    const colors = [
+        'rgba(102, 126, 234, 0.8)', 'rgba(231, 76, 60, 0.8)', 'rgba(46, 204, 113, 0.8)',
+        'rgba(243, 156, 18, 0.8)', 'rgba(155, 89, 182, 0.8)', 'rgba(26, 188, 156, 0.8)',
+        'rgba(230, 126, 34, 0.8)', 'rgba(255, 107, 107, 0.8)'
+    ];
+    const borderColors = colors.map(c => c.replace('0.8', '1'));
+    
+    Chart.defaults.color = '#b0b8c8';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    
+    // Accuracy Bar
+    new Chart(document.getElementById('accuracyChart'), {
+        type: 'bar',
+        data: {
+            labels: modelNames.map(n => n.length > 18 ? n.substring(0, 18) + '...' : n),
+            datasets: [{
+                label: 'Accuracy (%)',
+                data: modelNames.map(n => results[n].accuracy),
+                backgroundColor: colors, borderColor: borderColors,
+                borderWidth: 2, borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false },
+                tooltip: { callbacks: { title: (ctx) => modelNames[ctx[0].dataIndex], label: (ctx) => `Accuracy: ${ctx.raw}%` } }
+            },
+            scales: { y: { beginAtZero: false, min: Math.max(0, Math.min(...modelNames.map(n => results[n].accuracy)) - 10), max: 100, ticks: { callback: v => v + '%' } } }
+        }
+    });
+    
+    // Radar
+    new Chart(document.getElementById('radarChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+            datasets: modelNames.slice(0, 4).map((name, i) => ({
+                label: name,
+                data: [results[name].accuracy, results[name].precision, results[name].recall, results[name].f1_score],
+                borderColor: borderColors[i], backgroundColor: colors[i].replace('0.8', '0.15'),
+                borderWidth: 2, pointRadius: 4
+            }))
+        },
+        options: {
+            responsive: true,
+            scales: { r: { beginAtZero: false, min: Math.max(0, Math.min(...modelNames.map(n => Math.min(results[n].accuracy, results[n].precision, results[n].recall, results[n].f1_score))) - 10), max: 100, ticks: { display: false }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { font: { size: 12 } } } },
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } } }
+        }
+    });
+    
+    // Grouped Metrics
+    const metrics = ['accuracy', 'precision', 'recall', 'f1_score'];
+    const metricLabels = ['Accuracy', 'Precision', 'Recall', 'F1 Score'];
+    const metricColors = ['rgba(102, 126, 234, 0.8)', 'rgba(243, 156, 18, 0.8)', 'rgba(46, 204, 113, 0.8)', 'rgba(231, 76, 60, 0.8)'];
+    
+    new Chart(document.getElementById('metricsChart'), {
+        type: 'bar',
+        data: {
+            labels: modelNames.map(n => n.length > 15 ? n.substring(0, 15) + '...' : n),
+            datasets: metrics.map((metric, i) => ({
+                label: metricLabels[i],
+                data: modelNames.map(n => results[n][metric]),
+                backgroundColor: metricColors[i], borderColor: metricColors[i].replace('0.8', '1'),
+                borderWidth: 1, borderRadius: 4
+            }))
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 15 } }, tooltip: { callbacks: { title: (ctx) => modelNames[ctx[0].dataIndex] } } },
+            scales: { y: { beginAtZero: false, min: Math.max(0, Math.min(...modelNames.flatMap(n => metrics.map(m => results[n][m]))) - 10), max: 100, ticks: { callback: v => v + '%' } } }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

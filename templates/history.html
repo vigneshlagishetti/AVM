@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}History - IDS MANET{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-4">
+        <i class="bi bi-clock-history"></i> Prediction History
+    </h2>
+
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card glass-card animate-slide-up">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea, #764ba2)">
+                    <i class="bi bi-search"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ total }}</span>
+                    <span class="stat-label">Total Scans</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.1s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f5576c, #ff6b6b)">
+                    <i class="bi bi-shield-exclamation"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ threats }}</span>
+                    <span class="stat-label">Threats Detected</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card glass-card animate-slide-up" style="animation-delay: 0.2s">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7)">
+                    <i class="bi bi-shield-check"></i>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value">{{ safe }}</span>
+                    <span class="stat-label">Safe Traffic</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Predictions Table -->
+    <div class="glass-card animate-slide-up" style="animation-delay: 0.3s">
+        <div class="card-header-custom">
+            <h3><i class="bi bi-table"></i> Recent Predictions</h3>
+        </div>
+        <div class="table-responsive p-3">
+            {% if predictions %}
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th><i class="bi bi-calendar"></i> Timestamp</th>
+                        <th><i class="bi bi-shield"></i> Result</th>
+                        <th><i class="bi bi-speedometer2"></i> Confidence</th>
+                        <th><i class="bi bi-bug"></i> Attack Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr>
+                        <td>{{ pred.id }}</td>
+                        <td><small>{{ pred.timestamp }}</small></td>
+                        <td>
+                            <span class="badge {% if pred.result == 'normal' %}bg-success{% else %}bg-danger{% endif %} px-3 py-2">
+                                {% if pred.result == 'normal' %}
+                                <i class="bi bi-check-circle"></i> NORMAL
+                                {% else %}
+                                <i class="bi bi-exclamation-triangle"></i> ANOMALY
+                                {% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1" style="height: 6px;">
+                                    <div class="progress-bar {% if pred.result == 'normal' %}bg-success{% else %}bg-danger{% endif %}"
+                                         style="width: {{ pred.confidence }}%"></div>
+                                </div>
+                                <small class="ms-2">{{ pred.confidence }}%</small>
+                            </div>
+                        </td>
+                        <td><small class="text-muted">{{ pred.attack_type }}</small></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-inbox display-1 text-muted"></i>
+                <h4 class="mt-3 text-muted">No predictions yet</h4>
+                <p class="text-muted">Run predictions from the <a href="{{ url_for('predict') }}">Predict</a> page.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

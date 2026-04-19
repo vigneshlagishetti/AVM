@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Dataset Explorer - IDS MANET{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-4">
+        <i class="bi bi-database"></i> Dataset Explorer
+    </h2>
+
+    {% if meta and meta.dataset_stats %}
+    {% set ds = meta.dataset_stats %}
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3">
+                <span class="stat-value">{{ ds.total_samples }}</span>
+                <span class="stat-label">Samples</span>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3" style="animation-delay:0.05s">
+                <span class="stat-value">{{ ds.total_features }}</span>
+                <span class="stat-label">Features</span>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3" style="animation-delay:0.1s">
+                <span class="stat-value">{{ ds.numeric_features }}</span>
+                <span class="stat-label">Numeric</span>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3" style="animation-delay:0.15s">
+                <span class="stat-value">{{ ds.categorical_features }}</span>
+                <span class="stat-label">Categorical</span>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3" style="animation-delay:0.2s">
+                <span class="stat-value text-success">{{ ds.normal_count }}</span>
+                <span class="stat-label">Normal</span>
+            </div>
+        </div>
+        <div class="col-md-2 col-4">
+            <div class="stat-card glass-card animate-slide-up text-center p-3" style="animation-delay:0.25s">
+                <span class="stat-value text-danger">{{ ds.anomaly_count }}</span>
+                <span class="stat-label">Anomaly</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualizations -->
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay:0.3s">
+                <h5><i class="bi bi-pie-chart"></i> Class Distribution</h5>
+                <img src="{{ url_for('static', filename='images/class_distribution.png') }}"
+                     class="img-fluid rounded" alt="Class Distribution"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay:0.4s">
+                <h5><i class="bi bi-grid-3x3-gap"></i> Feature Correlation Heatmap</h5>
+                <img src="{{ url_for('static', filename='images/correlation_heatmap.png') }}"
+                     class="img-fluid rounded" alt="Correlation Heatmap"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay:0.5s">
+                <h5><i class="bi bi-bar-chart-steps"></i> Top Feature Distributions</h5>
+                <img src="{{ url_for('static', filename='images/feature_distributions.png') }}"
+                     class="img-fluid rounded" alt="Feature Distributions"
+                     onerror="this.parentElement.innerHTML='<p class=\'text-muted text-center\'>Run training to generate</p>'">
+            </div>
+        </div>
+    </div>
+
+    {% if feature_info %}
+    <div class="glass-card animate-slide-up p-4" style="animation-delay:0.6s">
+        <h5><i class="bi bi-funnel-fill"></i> ABO Selected Features</h5>
+        <div class="row g-2 mt-2">
+            {% for name in feature_info.selected_names %}
+            <div class="col-md-3 col-sm-4 col-6">
+                <div class="feature-chip">
+                    <span class="feature-index">{{ loop.index }}</span>
+                    <span class="feature-name">{{ name }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-3">
+            <span class="badge bg-primary fs-6">{{ feature_info.selected_names|length }} / {{ feature_info.all_features|length }} features selected</span>
+            <span class="badge bg-success fs-6 ms-2">{{ ((1 - feature_info.selected_names|length / feature_info.all_features|length) * 100) | round(1) }}% reduction</span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="glass-card animate-fade-in text-center p-5">
+        <i class="bi bi-exclamation-triangle display-1 text-warning"></i>
+        <h3 class="mt-3">No Data Available</h3>
+        <p class="text-muted">Run <code>python train_model.py</code> to generate dataset analytics.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

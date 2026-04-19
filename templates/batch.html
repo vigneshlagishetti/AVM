@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Batch Prediction - IDS MANET{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="section-title mb-4">
+        <i class="bi bi-upload"></i> Batch CSV Prediction
+    </h2>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4">
+                <h5><i class="bi bi-file-earmark-arrow-up"></i> Upload CSV File</h5>
+                <p class="text-muted small">Upload a CSV with network traffic parameters to analyze multiple samples at once.</p>
+                <form method="POST" enctype="multipart/form-data" id="batchForm">
+                    <div class="upload-zone mb-3" id="dropZone">
+                        <i class="bi bi-cloud-arrow-up display-4 text-primary"></i>
+                        <p class="mt-2 mb-1">Drag & drop CSV file or click to browse</p>
+                        <small class="text-muted">Max file size: 5MB</small>
+                        <input type="file" name="csv_file" accept=".csv" class="d-none" id="csvInput">
+                        <div id="fileName" class="mt-2 text-success fw-bold"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-glow w-100">
+                        <i class="bi bi-cpu"></i> Analyze Batch
+                    </button>
+                </form>
+                <hr class="my-3" style="border-color: rgba(255,255,255,0.1)">
+                <a href="{{ url_for('download_sample_csv') }}" class="btn btn-outline-light btn-sm w-100">
+                    <i class="bi bi-download"></i> Download Sample CSV
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="glass-card animate-slide-up p-4" style="animation-delay: 0.1s">
+                <h5><i class="bi bi-info-circle"></i> Expected Columns</h5>
+                <div class="feature-list" style="max-height:400px;overflow-y:auto">
+                    {% for param in params %}
+                    <div class="feature-chip" style="animation-delay: {{ loop.index0 * 0.03 }}s">
+                        <span class="feature-index">{{ loop.index }}</span>
+                        <span class="feature-name">{{ param.name }}</span>
+                        <small class="text-muted ms-auto">{{ param.type }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if batch_results %}
+    <!-- Results -->
+    <div class="glass-card animate-slide-up mt-4 p-4" style="animation-delay: 0.3s">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-clipboard-data"></i> Batch Results</h5>
+            <div>
+                <span class="badge bg-success px-3 py-2 me-2">{{ total - threats }} Safe</span>
+                <span class="badge bg-danger px-3 py-2">{{ threats }} Threats</span>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr><th>Row</th><th>Result</th><th>Attack Type</th><th>Confidence</th></tr>
+                </thead>
+                <tbody>
+                    {% for r in batch_results %}
+                    <tr>
+                        <td>{{ r.row }}</td>
+                        <td>
+                            <span class="badge {% if r.result == 'normal' %}bg-success{% else %}bg-danger{% endif %}">
+                                {{ r.result | upper }}
+                            </span>
+                        </td>
+                        <td><small>{{ r.attack_type }}</small></td>
+                        <td>{{ r.confidence }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const csvInput = document.getElementById('csvInput');
+    const fileName = document.getElementById('fileName');
+
+    dropZone.addEventListener('click', () => csvInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#667eea'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'rgba(255,255,255,0.15)'; });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'rgba(255,255,255,0.15)';
+        csvInput.files = e.dataTransfer.files;
+        fileName.textContent = e.dataTransfer.files[0]?.name || '';
+    });
+    csvInput.addEventListener('change', () => { fileName.textContent = csvInput.files[0]?.name || ''; });
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Sign Up — IDS MANET{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card glass-card animate-fade-in">
+        <div class="auth-header">
+            <div class="auth-icon signup-icon">
+                <i class="bi bi-person-plus-fill"></i>
+            </div>
+            <h2>Create Account</h2>
+            <p class="text-muted">Register to access the intrusion detection system</p>
+        </div>
+        
+        <form method="POST" action="{{ url_for('signup') }}" class="auth-form">
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control glass-input" id="name" 
+                       name="name" placeholder="Full Name" required>
+                <label for="name"><i class="bi bi-person"></i> Full Name</label>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control glass-input" id="email" 
+                       name="email" placeholder="Email" required>
+                <label for="email"><i class="bi bi-envelope"></i> Email Address</label>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control glass-input" id="password" 
+                       name="password" placeholder="Password" required minlength="6">
+                <label for="password"><i class="bi bi-lock"></i> Password</label>
+            </div>
+            
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control glass-input" id="confirm_password" 
+                       name="confirm_password" placeholder="Confirm Password" required minlength="6">
+                <label for="confirm_password"><i class="bi bi-lock-fill"></i> Confirm Password</label>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-glow w-100 py-3" id="signupBtn">
+                <i class="bi bi-person-check"></i>
+                Create Account
+            </button>
+        </form>
+        
+        <div class="auth-footer">
+            <p>Already have an account? 
+                <a href="{{ url_for('login') }}" class="auth-link">Sign In</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
